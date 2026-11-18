@@ -460,7 +460,7 @@ input[type=range]:focus-visible{outline:2px solid var(--cobalt);outline-offset:8
 /* ---------- курсор ---------- */
 .has-cursor,.has-cursor *{cursor:none}
 .has-cursor input:not([type=range]):not([type=checkbox]),.has-cursor select,.has-cursor textarea{cursor:auto}
-.cursor{position:fixed;left:0;top:0;z-index:1000;pointer-events:none;mix-blend-mode:difference;opacity:0;transition:opacity .25s}
+.cursor{position:fixed;left:0;top:0;z-index:1000;pointer-events:none;will-change:transform;mix-blend-mode:difference;opacity:0;transition:opacity .25s}
 .cursor.on{opacity:1}
 .cursor.on.is-field{opacity:0}
 .cursor::before{content:"";position:absolute;left:-5px;top:-11px;width:10px;height:22px;border-radius:2px;background:var(--blend);transition:left .4s var(--ease),top .4s var(--ease),width .4s var(--ease),height .4s var(--ease),border-radius .4s var(--ease),transform .2s}
@@ -1293,11 +1293,11 @@ input[type=range]:focus-visible{outline:2px solid var(--cobalt);outline-offset:8
     document.body.append(cur);
     const lbl = cur.firstElementChild;
     doc.classList.add('has-cursor');
-    let x = -100, y = -100, tx = -100, ty = -100, on = false;
+    let on = false;
     addEventListener('pointermove', (e) => {
       if (e.pointerType && e.pointerType !== 'mouse') return;
-      tx = e.clientX; ty = e.clientY;
-      if (!on) { x = tx; y = ty; on = true; cur.classList.add('on'); }
+      cur.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+      if (!on) { on = true; cur.classList.add('on'); }
       const t = e.target instanceof Element ? e.target : null;
       const field = t && t.closest('input:not([type=range]):not([type=checkbox]), select, textarea');
       const hot = t && t.closest('a, button, summary, label, input[type=range]');
@@ -1310,11 +1310,6 @@ input[type=range]:focus-visible{outline:2px solid var(--cobalt);outline-offset:8
     doc.addEventListener('mouseleave', () => { on = false; cur.classList.remove('on'); });
     addEventListener('pointerdown', () => cur.classList.add('down'));
     addEventListener('pointerup', () => cur.classList.remove('down'));
-    tasks.push(() => {
-      const k = RM ? 1 : 0.24;
-      x = lerp(x, tx, k); y = lerp(y, ty, k);
-      cur.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-    });
   });
 
   /* ---------- магнитные кнопки и наклон карточек ---------- */
